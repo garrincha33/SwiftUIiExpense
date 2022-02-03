@@ -7,6 +7,30 @@
 
 import SwiftUI
 
+struct UnderTenDollars: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .foregroundColor(.mint)
+            .font(.system(size: 15, weight: .bold))
+    }
+}
+
+extension View {
+    func style(for item: ExpenseItems) -> some View {
+        if item.amount < 10 {
+            return self.font(.system(size: 55, weight: .bold, design: .monospaced))
+            
+        } else if item.amount < 100 {
+            return self.font(.title3)
+        } else {
+            return self.font(.title)
+        }
+    }
+    
+    func under10() -> some View {
+        modifier(UnderTenDollars())
+    }
+}
 
 struct ContentView: View {
     
@@ -17,7 +41,17 @@ struct ContentView: View {
         NavigationView {
             List {
                 ForEach(expenses.items) { item in
-                    Text(item.name)
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(item.name)
+                                .font(.headline)
+                            Text(item.type)
+                        }
+                        
+                        Spacer()
+                        
+                        Text(item.amount, format: .currency(code: Locale.current.currencyCode ?? "USD")).style(for: item)
+                    }
                 }.onDelete(perform: removeItems)
             }.navigationTitle("IExpense")
                 .toolbar {
